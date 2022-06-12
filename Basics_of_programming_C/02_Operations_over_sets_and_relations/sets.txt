@@ -1,0 +1,14 @@
+U dad mom girl boy man woman
+R (dad boy) (boy girl) (dad girl) (girl woman) (dad woman) (boy woman)
+R (dad boy) (dad girl) (mom boy) (mom girl) (woman dad) (man boy)
+R (dad boy) (dad girl) (mom boy) (mom girl)
+R (dad man) (boy man) (mom woman) (girl woman) (man dad)
+S boy mom girl woman
+S man
+S man dad girl
+S boy man woman
+S man boy
+S man boy
+C codomain 2
+C codomain 3
+C transitive 2

@@ -1,0 +1,254 @@
+#!/bin/bash
+export POSIXLY_CORRECT=yes
+export LC_NUMERIC=en_US.UTF-8
+
+print_help(){
+echo "USAGE: "
+echo "       corona [-h] [FILTER] [COMMAND] [LOG [LOG2 [...] ] ]"
+echo ""
+echo ""
+echo "DESCRIPTION: "
+echo "          Script filters records of infected people and executes commands over them"
+echo "          If script doesn not get FILTER and COMMAND, it prints the file on standard output"
+echo "          Script can handle compressed files ended as [.gz] or [.bz2]"
+echo "          If script doesn not get a file, records are expected on standard input"
+echo "          Graphs are rendered with ASCII and are turned right"
+echo ""
+echo ""
+echo "COMMANDS: "
+echo "	infected 	counts number of infected"
+echo "	merge		merge several files into one"
+echo "	gender		prints number of infected by genders"
+echo "	age          	prints statistics of infected by age"
+echo "	daily       	prints statistics of infected for each day"
+echo "	monthly		prints statistics of infected for each month"
+echo "	yearly		prints statistics of infected for each year"
+echo "	countries	prints statistics of infected for each country"
+echo "	districts	prints statistics of infected for each district"
+echo "	regions		prints statistics of infected for each region"
+echo ""
+echo ""
+echo "FILTERS: "
+echo "	-a DATETIME		filter records after given datetime (YYYY-MM-DD)"
+echo "	-b DATETIME		filter records before given datetime (YYYY-MM-DD)"
+echo "	-g GENDER		filter records of given gender (M - men, Z - women)"
+echo "	-s [WIDTH]		prints data as graphical histogram instead of numeric values (YYYY-MM-DD)"
+echo "				WIDTH is optional argument that sets the width of a line, if no WIDTH is given each # represents:"
+echo "					gender - 100 000"
+echo "					age - 10 000"
+echo "					daily - 500"
+echo "					monthly - 10 000"
+echo "					yearly - 100 000"
+echo "					countries - 100"
+echo "					districts - 1000"
+echo "					regions - 10 000"
+echo ""
+}
+
+GZ_LOG_FILES=""
+BZ_LOG_FILES=""
+VIABLE="0"
+COMMAND=""
+LOG_FILES=""
+BEFORE="9999-12-31"
+AFTER="0000-00-00"
+GENDER=""
+WIDTH_BOOL="false"
+WIDTH=""
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-h)
+	print_help
+	exit 0
+	;;
+	-s)
+	WIDTH_BOOL="true"
+	if [[ "$2" =~ ^[0-9]+$ ]]; then
+		WIDTH="$2"
+		shift
+	fi
+	shift
+        ;;
+	-a)
+	AFTER="$2"
+	shift
+	shift
+	;;
+	-b)
+	BEFORE="$2"
+	shift
+	shift
+	;;
+	-g)
+	GENDER="$2"
+	shift
+	shift
+	;;
+	*\.csv)
+	LOG_FILES="$1"
+	shift
+	;;
+	*\.gz)
+	GZ_LOG_FILES="$1"
+	shift
+	;;
+	*)
+	if [ "$COMMAND" == "" ]; then
+		COMMAND="$1"
+		shift
+	else
+		echo "Too many commands" >/dev/stderr
+		exit 1
+	fi
+	;;
+  esac
+done
+
+if [ "$GZ_LOG_FILES" != "" ]; then
+	LOG_FILES="$LOG_FILE $(gzip -d -k -c "$GZ_LOG_FILES")"
+	echo "$LOG_FILES"
+fi
+
+
+declare -a VIABLE_COMMANDS=("infected" "merge" "gender" "age" "daily" "monthly" "yearly" "countries" "districts" "regions" "")
+
+for item in "${VIABLE_COMMANDS[@]}"
+do
+	if [ "$COMMAND" =  "$item" ]; then
+		VIABLE="1"
+	fi
+done
+
+if [ "$VIABLE" = "0" ]; then
+	echo "Not viable command" >/dev/stderr
+	exit 1
+fi
+
+
+
+
+
+
+
+if [ "$COMMAND" == "" ]; then
+        echo "id,datum,vek,pohlavi,kraj_nuts_kod,okres_lau_kod,nakaza_v_zahranici,nakaza_zeme_csu_kod,reportovano_khs"
+        awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE '
+		($4  == GENDER || GENDER == "") && $2 <= BEFORE && $2 >= AFTER {print $0}' "$LOG_FILES"
+       		 exit 0
+fi
+
+if [ "$COMMAND" == "infected" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE '
+		NR != 1 && ($4  == GENDER || GENDER == "") && $2 <= BEFORE && $2 >= AFTER{SUM++}
+		END{print SUM}' "$LOG_FILES"
+fi
+
+if [ "$COMMAND" == "merge" ]; then
+	echo "merge"
+fi
+
+
+if [ "$COMMAND" = "gender" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '
+		($4 == "M" && GENDER != "Z") && AFTER <= $2 && BEFORE >= $2 {M++}
+		END {if (GENDER != "Z"){if (WIDTH_BOOL == "true") {wdth=sprintf("%"M/100000"s", ""); gsub(" ", "#", wdth); print "M: " wdth} else{print "M: "M}}}
+		($4 == "Z" && GENDER != "M") && AFTER <= $2 && BEFORE >= $2 {Z++}
+		END {if (GENDER != "M"){if (WIDTH_BOOL == "true") {wdth=sprintf("%"Z/100000"s", ""); gsub(" ", "#", wdth); print "Z: " wdth} else{print "Z: "Z}}}' "$LOG_FILES"
+fi
+
+
+if [ "$COMMAND" == "age" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '
+		NR != 1 && $3 == "" && ($4  == GENDER || GENDER == "") && AFTER <= $2 && BEFORE >= $2 {NONE++}
+		NR != 1 && ($4  == GENDER || GENDER == "") && AFTER <= $2 && BEFORE >= $2{
+		if($3 > -1 && $3 < 6) {AGES["0"]++}
+		if($3 > 5 && $3 < 16) {AGES["1"]++}
+		if($3 > 15 && $3 < 26) {AGES["2"]++}
+		if($3 > 25 && $3 < 36) {AGES["3"]++}
+                if($3 > 35 && $3 < 46) {AGES["4"]++}
+		if($3 > 45 && $3 < 56) {AGES["5"]++}
+                if($3 > 55 && $3 < 66) {AGES["6"]++}
+		if($3 > 65 && $3 < 76) {AGES["7"]++}
+                if($3 > 75 && $3 < 86) {AGES["8"]++}
+		if($3 > 85 && $3 < 96) {AGES["9"]++}
+                if($3 > 95 && $3 < 106){AGES["10"]++}
+		if($3 > 105)	       {AGES["11"]++}}
+
+		END	{if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["0"]/10000"s", ""); gsub(" ", "#", wdth); print "0-5   : " wdth}else{print "0-5   : "AGES["0"]};
+		 	if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["1"]/10000"s", ""); gsub(" ", "#", wdth); print "6-15  : " wdth}else{print "6-15  : "AGES["1"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["2"]/10000"s", ""); gsub(" ", "#", wdth); print "16-25 : " wdth}else{print "16-25 : "AGES["2"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["3"]/10000"s", ""); gsub(" ", "#", wdth); print "26-35 : " wdth}else{print "26-35 : "AGES["3"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["4"]/10000"s", ""); gsub(" ", "#", wdth); print "36-45 : " wdth}else{print "36-45 : "AGES["4"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["5"]/10000"s", ""); gsub(" ", "#", wdth); print "46-55 : " wdth}else{print "46-55 : "AGES["5"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["6"]/10000"s", ""); gsub(" ", "#", wdth); print "56-65 : " wdth}else{print "56-65 : "AGES["6"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["7"]/10000"s", ""); gsub(" ", "#", wdth); print "66-75 : " wdth}else{print "66-75 : "AGES["7"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["8"]/10000"s", ""); gsub(" ", "#", wdth); print "76-85 : " wdth}else{print "76-85 : "AGES["8"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["9"]/10000"s", ""); gsub(" ", "#", wdth); print "86-95 : " wdth}else{print "86-95 : "AGES["9"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["10"]/10000"s", ""); gsub(" ", "#", wdth); print "96-105: " wdth}else{print "96-105: "AGES["10"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"AGES["11"]/10000"s", ""); gsub(" ", "#", wdth); print ">105  : " wdth}else{print ">105  : "AGES["11"]};
+			if(WIDTH_BOOL == "true") {wdth=sprintf("%"NONE/10000"s", ""); gsub(" ", "#", wdth); print "None  : " wdth}else{print "None  : "NONE}}' "$LOG_FILES"
+fi
+
+
+if [ "$COMMAND" == "daily" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '{DATE=$2}
+		NR == 2 {DATE_BEFORE=DATE}
+		NR != 1 && DATE > DATE_BEFORE && ($4  == GENDER || GENDER == "") && AFTER <= DATE && BEFORE >= DATE{if(DATE_BEFORE >= AFTER)
+{if (WIDTH_BOOL == "true") {wdth=sprintf("%"SUM/500"s", ""); gsub(" ", "#", wdth); print DATE_BEFORE": " wdth; DATE_BEFORE = DATE; SUM = 0}
+else {print DATE_BEFORE ": " SUM; DATE_BEFORE = DATE; SUM = 0}}else{DATE_BEFORE = DATE}}
+
+		NR > 1 && ($4  == GENDER || GENDER == "") && AFTER <= DATE && BEFORE >= DATE {SUM++}
+		END{if (WIDTH_BOOL == "true") {wdth=sprintf("%"SUM/500"s", ""); gsub(" ", "#", wdth); print DATE_BEFORE": " wdth} else{print DATE_BEFORE ": " SUM}}' "$LOG_FILES"
+fi
+
+
+if [ "$COMMAND" == "monthly" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '{MONTH=substr($2,0,7)}
+		NR == 2 {MONTH_BEFORE=MONTH}
+                NR != 1 && MONTH > MONTH_BEFORE && ($4  == GENDER || GENDER == "") && AFTER <= MONTH && BEFORE >= MONTH {if(MONTH_BEFORE >= AFTER)
+{if (WIDTH_BOOL == "true") {wdth=sprintf("%"SUM/10000"s", ""); gsub(" ", "#", wdth); print MONTH_BEFORE": " wdth; MONTH_BEFORE = MONTH; SUM = 0}
+else {print MONTH_BEFORE ": " SUM; MONTH_BEFORE = MONTH; SUM = 0}}else{MONTH_BEFORE = MONTH }}
+
+		NR > 1 && ($4  == GENDER || GENDER == "") && AFTER <= MONTH && BEFORE >= MONTH {SUM++}
+		END{if (WIDTH_BOOL == "true") {wdth=sprintf("%"SUM/10000"s", ""); gsub(" ", "#", wdth); print MONTH_BEFORE": " wdth} else{print MONTH_BEFORE ": " SUM}}' "$LOG_FILES"
+fi
+
+
+if [ "$COMMAND" == "yearly" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '{YEAR=substr($2,0,4)}
+		NR == 2 {YEAR_BEFORE=YEAR}
+		 NR != 1 && YEAR > YEAR_BEFORE && ($4  == GENDER || GENDER == "") && AFTER <= YEAR && BEFORE >= YEAR {if(YEAR_BEFORE >= AFTER)
+{if (WIDTH_BOOL == "true") {wdth=sprintf("%"int(SUM/100000)"s", ""); gsub(" ", "#", wdth); print YEAR_BEFORE": " wdth; YEAR_BEFORE = YEAR; SUM = 0} 
+else {print YEAR_BEFORE ": " SUM; YEAR_BEFORE = YEAR; SUM = 0}}else{YEAR_BEFORE = YEAR }}
+
+		NR > 1 && ($4  == GENDER || GENDER == "") && AFTER <= YEAR && BEFORE >= YEAR {SUM++}
+		END{if (WIDTH_BOOL == "true") {wdth=sprintf("%"SUM/100000"s", ""); gsub(" ", "#", wdth); print YEAR_BEFORE": " wdth} else{print YEAR_BEFORE ": " SUM}}' "$LOG_FILES"
+
+fi
+
+if [ "$COMMAND" == "countries" ]; then
+	awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '
+		NR != 1 && ($4  == GENDER || GENDER == "") && AFTER <= $2 && BEFORE >= $2 {if ($8 != "CZ" && $8 != ""){COUNTRIES[$8]++}}
+		END{for (country in COUNTRIES){if (WIDTH_BOOL == "true") {wdth=sprintf("%"COUNTRIES[country]/100"s", ""); gsub(" ", "#", wdth); print country": " wdth}
+						else{print country ": " COUNTRIES[country]}}}' "$LOG_FILES" | sort -g
+fi
+
+if [ "$COMMAND" == "districts" ]; then
+        awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL '
+		NR != 1 && ($4  == GENDER || GENDER == "") && AFTER <= $2 && BEFORE >= $2 {if ($6 != "CZ" && $6 != ""){DISTRICTS[$6]++}else{NONE++}}
+                END{for (district in DISTRICTS){if (WIDTH_BOOL == "true") {wdth=sprintf("%"DISTRICTS[district]/1000"s", ""); gsub(" ", "#", wdth);print district": " wdth}
+					else{print district ": " DISTRICTS[district]}};
+				 if (WIDTH_BOOL == "true"){{wdth=sprintf("%"NONE/1000"s", ""); gsub(" ", "#", wdth);print "None: " wdth}}
+				else{ print "None: " NONE}}' "$LOG_FILES" | sort -k1
+fi
+
+if [ "$COMMAND" == "regions" ]; then
+        awk -F, -v GENDER=$GENDER -v AFTER=$AFTER -v BEFORE=$BEFORE -v WIDTH_BOOL=$WIDTH_BOOL  '
+		NR != 1 && ($4  == GENDER || GENDER == "") && AFTER <= $2 && BEFORE >= $2 {if ($5 != "CZ" && $5 != ""){REGIONS[$5]++}else{NONE++}}
+                END{for (region in REGIONS){if (WIDTH_BOOL == "true") {wdth=sprintf("%"REGIONS[region]/10000"s", ""); gsub(" ", "#", wdth);print region": " wdth}
+						else{print region ": " REGIONS[region]}}; 
+				if (WIDTH_BOOL == "true"){{wdth=sprintf("%"NONE/10000"s", ""); gsub(" ", "#", wdth);print "None: " wdth}}
+				else{ print "None: " NONE}}' "$LOG_FILES" | sort -k1
+fi
+
+
