@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="ICSProject.App.Views.Activity.ActivityDetailView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ICSProject.App.Views"
+    xmlns:vm="clr-namespace:ICSProject.App.ViewModels"
+    x:DataType="vm:ActivityDetailViewModel">
+
+    <VerticalStackLayout Margin="100,100,100,0">
+
+        <!--  Activity overview  -->
+        <HorizontalStackLayout
+            Margin="0,0,0,0"
+            HorizontalOptions="Center"
+            Spacing="10">
+            <Label
+                FontSize="18"
+                Text="Activity"
+                VerticalOptions="End" />
+            <Label
+                FontAttributes="Bold"
+                FontSize="23"
+                Text="{Binding Activity.Name}"
+                TextColor="{StaticResource Powder}"
+                TextTransform="Uppercase"
+                VerticalOptions="End" />
+            <Label
+                FontSize="18"
+                Text="in project"
+                VerticalOptions="End" />
+            <Label
+                FontAttributes="Bold"
+                FontSize="23"
+                Text="{Binding Project.Name}"
+                TextColor="{StaticResource ButtonBackground}"
+                TextTransform="Uppercase"
+                VerticalOptions="End" />
+        </HorizontalStackLayout>
+
+        <!--  Activity duration  -->
+        <HorizontalStackLayout Margin="0,0,0,40" HorizontalOptions="Center">
+
+            <Label
+                Margin="0,20,10,0"
+                FontSize="20"
+                Text="duration:"
+                TextTransform="Uppercase" />
+            <Label
+                Margin="0,20,0,0"
+                FontSize="15"
+                Text="{Binding ActivityDuration}"
+                TextColor="Gray"
+                VerticalOptions="Center" />
+
+
+        </HorizontalStackLayout>
+
+        <!--  Activity name edit  -->
+        <HorizontalStackLayout HorizontalOptions="Center">
+            <Label
+                Margin="0,0,120,0"
+                FontAttributes="Bold"
+                FontSize="20"
+                Text="NAME"
+                VerticalOptions="Center" />
+            <Entry
+                FontSize="18"
+                Text="{Binding Activity.Name}"
+                WidthRequest="1000" />
+        </HorizontalStackLayout>
+
+        <!--  Activity type  -->
+        <HorizontalStackLayout Margin="0,40,0,0" HorizontalOptions="Center">
+            <Label
+                Margin="0,0,130,0"
+                FontAttributes="Bold"
+                FontSize="20"
+                Text="TYPE" />
+
+            <Entry
+                FontSize="18"
+                Text="{Binding Activity.Type}"
+                WidthRequest="1000" />
+
+        </HorizontalStackLayout>
+
+        <!--  Activity description edit  -->
+        <HorizontalStackLayout Margin="0,40,0,0" HorizontalOptions="Center">
+            <Label
+                Margin="0,0,40,0"
+                FontAttributes="Bold"
+                FontSize="20"
+                Text="description"
+                TextTransform="Uppercase"
+                VerticalOptions="Center" />
+            <Entry
+                FontSize="18"
+                Text="{Binding Activity.Description}"
+                WidthRequest="1000" />
+        </HorizontalStackLayout>
+
+
+        <BoxView
+            Margin="0,30,0,0"
+            HeightRequest="1"
+            HorizontalOptions="FillAndExpand"
+            Opacity="0.25"
+            Color="White" />
+
+        <HorizontalStackLayout Margin="0,20,0,0" HorizontalOptions="Center">
+            <Label
+                Margin="20,0,30,0"
+                FontSize="20"
+                HorizontalOptions="Center"
+                Text="DATE"
+                VerticalOptions="Center" />
+            <DatePicker
+                BackgroundColor="{StaticResource Gray600}"
+                Date="{Binding Date}"
+                FontSize="18"
+                Format="YYYY-MM-DD"
+                HorizontalOptions="Center"
+                VerticalOptions="Center" />
+
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout Margin="0,30,0,0" HorizontalOptions="Center">
+            <Label
+                Margin="0,0,20,0"
+                FontSize="20"
+                Text="FROM"
+                VerticalOptions="Start" />
+            <TimePicker
+                Margin="20,0,10,0"
+                BackgroundColor="{StaticResource Gray900}"
+                FontSize="18"
+                Format="HH:mm"
+                Time="{Binding StartTempTime}"
+                VerticalOptions="End" />
+
+            <Label
+                Margin="150,0,20,0"
+                FontSize="20"
+                Text="TO"
+                VerticalOptions="Start" />
+            <TimePicker
+                Margin="20,0,10,0"
+                BackgroundColor="{StaticResource Gray900}"
+                FontSize="18"
+                Format="HH:mm"
+                Time="{Binding EndTempTime}"
+                VerticalOptions="End" />
+        </HorizontalStackLayout>
+
+        <BoxView
+            Margin="0,20,0,0"
+            HeightRequest="1"
+            HorizontalOptions="FillAndExpand"
+            Opacity="0.25"
+            Color="White" />
+
+
+        <HorizontalStackLayout Margin="0,40" HorizontalOptions="Center">
+            <Button
+                Margin="10,0"
+                Command="{Binding SaveCommand}"
+                FontSize="16"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Text="Save changes"
+                TextColor="White" />
+
+            <Button
+                Command="{Binding DeleteCommand}"
+                FontSize="16"
+                Style="{StaticResource SecondaryButtonStyle}"
+                Text="Delete activity"
+                TextColor="White" />
+        </HorizontalStackLayout>
+
+
+    </VerticalStackLayout>
+</views:ContentPageBase>

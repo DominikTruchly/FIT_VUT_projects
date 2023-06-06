@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="ICSProject.App.Views.User.UserProfileView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ICSProject.App.Views"
+    xmlns:vm="using:ICSProject.App.ViewModels"
+    x:DataType="vm:UserProfileViewModel"
+    Style="{StaticResource ContentPageStyle}">
+
+    <Grid
+        Margin="0,0,50,0"
+        ColumnDefinitions="*,*"
+        ColumnSpacing="0"
+        RowDefinitions="*, *"
+        VerticalOptions="Center">
+
+        <Frame
+            Grid.Row="0"
+            Grid.Column="0"
+            BorderColor="Black"
+            CornerRadius="20"
+            HeightRequest="300"
+            IsClippedToBounds="True"
+            WidthRequest="250">
+
+            <Grid BackgroundColor="WhiteSmoke">
+                <Image
+                    Grid.Row="0"
+                    Aspect="AspectFill"
+                    HeightRequest="300"
+                    HorizontalOptions="Fill"
+                    Source="{Binding User.ImageUrl, TargetNullValue='user_placeholder.png'}"
+                    VerticalOptions="Fill"
+                    WidthRequest="300" />
+            </Grid>
+        </Frame>
+
+        <VerticalStackLayout
+            Grid.Row="0"
+            Grid.Column="1"
+            Margin="0,0,20,0"
+            HorizontalOptions="Start"
+            Spacing="15"
+            VerticalOptions="Center"
+            WidthRequest="550">
+            <Label FontSize="16" Text="Name" />
+            <Entry FontSize="20" Text="{Binding User.Name}" />
+            <Label FontSize="16" Text="Surname" />
+            <Entry FontSize="20" Text="{Binding User.Surname}" />
+            <Label FontSize="16" Text="Picture" />
+            <Entry FontSize="14" Text="{Binding User.ImageUrl}" />
+
+
+        </VerticalStackLayout>
+
+        <HorizontalStackLayout
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Margin="0,50,0,0"
+            HeightRequest="100"
+            HorizontalOptions="Center"
+            Spacing="20">
+
+            <Button
+                Command="{Binding SaveCommand}"
+                FontSize="18"
+                HeightRequest="60"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Text="Save changes"
+                TextColor="White"
+                WidthRequest="200" />
+
+            <Button
+                Command="{Binding DeleteCommand}"
+                FontSize="18"
+                HeightRequest="60"
+                Style="{StaticResource SecondaryButtonStyle}"
+                Text="Delete user"
+                TextColor="White"
+                WidthRequest="200" />
+
+
+
+        </HorizontalStackLayout>
+
+
+    </Grid>
+
+
+</views:ContentPageBase>

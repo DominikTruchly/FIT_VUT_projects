@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="ICSProject.App.Views.User.UserDetailView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="clr-namespace:ICSProject.BL.Models;assembly=ICSProject.BL"
+    xmlns:views="using:ICSProject.App.Views"
+    xmlns:vm="clr-namespace:ICSProject.App.ViewModels"
+    x:Name="UserDetailViewRoot"
+    x:DataType="vm:UserDetailViewModel"
+    Style="{StaticResource ContentPageStyle}">
+
+    <ScrollView>
+        <Grid Margin="20" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+            <Grid Grid.Row="0" ColumnDefinitions="*,*">
+
+                <!--  Back to all users  -->
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="{StaticResource PrimaryBackground}"
+                    Command="{Binding LogOutCommand}"
+                    HeightRequest="30"
+                    HorizontalOptions="Start"
+                    Text="◄    All Users"
+                    TextColor="White"
+                    WidthRequest="150" />
+
+                <!--  Profile Edit Button with picture and name  -->
+                <Frame
+                    Grid.Column="1"
+                    Padding="15"
+                    BackgroundColor="{StaticResource DarkestBlue}"
+                    CornerRadius="20"
+                    HorizontalOptions="End">
+                    <HorizontalStackLayout
+                        BackgroundColor="{StaticResource DarkestBlue}"
+                        HorizontalOptions="End"
+                        Spacing="10">
+                        <Frame
+                            Padding="0"
+                            CornerRadius="30"
+                            IsClippedToBounds="True">
+                            <Image
+                                Aspect="AspectFill"
+                                HeightRequest="50"
+                                HorizontalOptions="Center"
+                                Source="{Binding User.ImageUrl, TargetNullValue='user_placeholder.png'}"
+                                VerticalOptions="Start"
+                                WidthRequest="50" />
+                        </Frame>
+
+                        <Label
+                            FontSize="20"
+                            Text="{Binding User.Name}"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontSize="20"
+                            Text="{Binding User.Surname}"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                        <Button
+                            BackgroundColor="{StaticResource DarkestBlue}"
+                            Command="{Binding Source={x:Reference UserDetailViewRoot}, Path=BindingContext.GoToProfileCommand}"
+                            CommandParameter="{Binding User.Id}"
+                            HorizontalOptions="End"
+                            Text="⋮"
+                            TextColor="White" />
+                    </HorizontalStackLayout>
+                </Frame>
+            </Grid>
+
+
+            <!--  Frame with Activities  -->
+            <Frame
+                Grid.Row="1"
+                Margin="0,20,0,0"
+                Padding="10"
+                BackgroundColor="{StaticResource Gray600}"
+                CornerRadius="20">
+                <Grid
+                    Margin="10,30,10,30"
+                    ColumnDefinitions="*,*,*"
+                    RowDefinitions="Auto, Auto">
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="40,0,0,0"
+                        FontSize="30"
+                        HorizontalTextAlignment="Start"
+                        Text="Activities"
+                        TextColor="White" />
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="Filter" />
+
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="0,0,30,0"
+                        Command="{Binding GoToAddActivityCommand}"
+                        HorizontalOptions="End"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Text="Add Activity"
+                        WidthRequest="150" />
+
+                    <CollectionView
+                        Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        Margin="10,20,10,0"
+                        ItemsSource="{Binding User.UsrActivities}">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="5" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="m:ActivityListModel">
+                                <Frame Padding="0" HeightRequest="60">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={x:Reference UserDetailViewRoot}, Path=BindingContext.GoToActivityCommand}" CommandParameter="{Binding Id}" />
+                                    </Frame.GestureRecognizers>
+
+                                    <HorizontalStackLayout BackgroundColor="{StaticResource Gray300}" Spacing="20">
+                                        <Label
+                                            Margin="22,12"
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Start"
+                                            LineBreakMode="WordWrap"
+                                            Text="{Binding Name}"
+                                            TextColor="{StaticResource DarkButtonBackground}"
+                                            VerticalOptions="Center"
+                                            WidthRequest="180" />
+
+                                        <Label
+                                            Margin="22,12"
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Start"
+                                            LineBreakMode="WordWrap"
+                                            Text="{Binding Type}"
+                                            TextColor="{StaticResource Gray900}"
+                                            VerticalOptions="Center"
+                                            WidthRequest="100" />
+
+                                        <Label
+                                            Margin="22,12"
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Start"
+                                            LineBreakMode="WordWrap"
+                                            Text="{Binding StartDate}"
+                                            TextColor="{StaticResource Gray900}"
+                                            VerticalOptions="Center"
+                                            WidthRequest="160" />
+
+                                        <Label
+                                            Margin="22,12"
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Start"
+                                            LineBreakMode="WordWrap"
+                                            Text="{Binding EndDate}"
+                                            TextColor="{StaticResource Gray900}"
+                                            VerticalOptions="Center"
+                                            WidthRequest="160" />
+                                    </HorizontalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </Grid>
+            </Frame>
+
+            <!--  Frame with Projects  -->
+            <Frame
+                Grid.Row="2"
+                Margin="0,20,0,0"
+                Padding="10"
+                BackgroundColor="{StaticResource Gray600}"
+                CornerRadius="20">
+                <Grid
+                    Margin="10,30,10,30"
+                    ColumnDefinitions="*, *, *"
+                    RowDefinitions="Auto, Auto">
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="40,0,0,0"
+                        FontSize="30"
+                        HorizontalTextAlignment="Start"
+                        Text="Projects"
+                        TextColor="White" />
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="Filter" />
+
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="0,0,30,0"
+                        Command="{Binding GoToAddProjectCommand}"
+                        HorizontalOptions="End"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Text="Add Project"
+                        WidthRequest="150" />
+
+                    <CollectionView
+                        Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        Margin="10,20,10,0"
+                        ItemsSource="{Binding User.UsrProjects}">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="5" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="m:ProjectListModel">
+                                <Frame
+                                    Padding="0"
+                                    BackgroundColor="{StaticResource Gray300}"
+                                    HeightRequest="60"
+                                    WidthRequest="250">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={x:Reference UserDetailViewRoot}, Path=BindingContext.GoToProjectDetailCommand}" CommandParameter="{Binding Id}" />
+                                    </Frame.GestureRecognizers>
+
+
+                                    <Label
+                                        Margin="0"
+                                        Padding="10"
+                                        FontSize="16"
+                                        HorizontalOptions="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding Name}"
+                                        TextColor="{StaticResource Gray900}"
+                                        VerticalOptions="Center" />
+
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </Grid>
+            </Frame>
+
+        </Grid>
+    </ScrollView>
+
+</views:ContentPageBase>

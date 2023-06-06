@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="ICSProject.App.Views.Activity.ActivityAddView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="using:ICSProject.App.Views"
+    xmlns:vm="clr-namespace:ICSProject.App.ViewModels"
+    x:DataType="vm:ActivityAddViewModel">
+
+    <Grid
+        ColumnDefinitions="Auto"
+        HorizontalOptions="Center"
+        RowDefinitions="Auto,Auto,Auto,*"
+        VerticalOptions="Center">
+
+        <Frame
+            Margin="0,0,0,20"
+            Padding="15"
+            CornerRadius="20"
+            HorizontalOptions="Center">
+            <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                <Frame
+                    Padding="0"
+                    CornerRadius="30"
+                    IsClippedToBounds="True">
+                    <Image
+                        Aspect="AspectFill"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"
+                        Source="{Binding User.ImageUrl, TargetNullValue='user_placeholder.png'}"
+                        VerticalOptions="Start"
+                        WidthRequest="50" />
+                </Frame>
+
+                <Label
+                    FontSize="20"
+                    Text="{Binding User.Name}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+                <Label
+                    FontSize="20"
+                    Text="{Binding User.Surname}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+
+            </HorizontalStackLayout>
+        </Frame>
+
+
+        <!--  Time of activity  -->
+        <Frame Grid.Row="1" BackgroundColor="{StaticResource Gray900}">
+            <HorizontalStackLayout Spacing="110">
+
+                <!--  Date  -->
+                <VerticalStackLayout Spacing="20" VerticalOptions="Center">
+                    <Label
+                        Margin="10,0,0,0"
+                        FontSize="18"
+                        Text="DATE" />
+                    <DatePicker
+                        BackgroundColor="WhiteSmoke"
+                        Date="{Binding Activity.StartDate}"
+                        FontSize="18"
+                        TextColor="Black" />
+                </VerticalStackLayout>
+
+                <!--  From  -->
+                <VerticalStackLayout Spacing="20" VerticalOptions="Center">
+                    <Label
+                        Margin="10,0,0,0"
+                        FontSize="18"
+                        Text="FROM:" />
+                    <TimePicker
+                        BackgroundColor="WhiteSmoke"
+                        FontSize="18"
+                        TextColor="Black"
+                        Time="{Binding StartTempTime}" />
+                </VerticalStackLayout>
+
+                <!--  To  -->
+                <VerticalStackLayout Spacing="20" VerticalOptions="Center">
+                    <Label
+                        Margin="10,0,0,0"
+                        FontSize="18"
+                        Text="TO:" />
+                    <TimePicker
+                        BackgroundColor="WhiteSmoke"
+                        FontSize="18"
+                        TextColor="Black"
+                        Time="{Binding EndTempTime}" />
+                </VerticalStackLayout>
+
+            </HorizontalStackLayout>
+        </Frame>
+
+
+        <VerticalStackLayout Grid.Row="2" Margin="0,20">
+
+            <Label
+                Margin="0,20,0,20"
+                FontSize="18"
+                Text="Activity name"
+                TextTransform="Uppercase" />
+            <Entry FontSize="16" Text="{Binding Activity.Name}" />
+
+            <Label
+                Margin="0,20,0,20"
+                FontSize="18"
+                Text="Activity type"
+                TextTransform="Uppercase" />
+            <Entry FontSize="16" Text="{Binding Activity.Type}" />
+
+            <Label
+                Margin="0,20,0,20"
+                FontSize="18"
+                Text="Activity description"
+                TextTransform="Uppercase" />
+            <Entry Text="{Binding Activity.Description}" />
+
+        </VerticalStackLayout>
+
+
+        <Button
+            Grid.Row="3"
+            Margin="0,20"
+            Command="{Binding SaveCommand}"
+            FontSize="18"
+            HeightRequest="60"
+            Style="{StaticResource PrimaryButtonStyle}"
+            Text="Save Activity"
+            WidthRequest="200" />
+
+    </Grid>
+</views:ContentPageBase>

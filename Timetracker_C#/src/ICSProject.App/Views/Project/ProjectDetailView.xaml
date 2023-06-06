@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="ICSProject.App.Views.Project.ProjectDetailView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="clr-namespace:ICSProject.BL.Models;assembly=ICSProject.BL"
+    xmlns:views="clr-namespace:ICSProject.App.Views"
+    xmlns:vm="clr-namespace:ICSProject.App.ViewModels"
+    x:Name="ProjectDetailViewRoot"
+    x:DataType="vm:ProjectDetailViewModel">
+
+    <Grid
+        Margin="100"
+        HorizontalOptions="Center"
+        RowDefinitions="Auto, *"
+        VerticalOptions="Center">
+
+
+        <VerticalStackLayout Grid.Row="0" Spacing="20">
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
+                <Label FontSize="35" Text="Project" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="35"
+                    Text="{Binding Project.Name}"
+                    TextColor="{StaticResource ButtonBackground}"
+                    TextTransform="Uppercase" />
+            </HorizontalStackLayout>
+
+
+
+            <HorizontalStackLayout Margin="0,0,0,15" HorizontalOptions="Center">
+                <Label
+                    Margin="0,0,30,0"
+                    FontSize="18"
+                    Text="Project name:"
+                    TextTransform="Uppercase"
+                    VerticalOptions="Center" />
+                <Entry
+                    FontSize="18"
+                    Text="{Binding Project.Name}"
+                    WidthRequest="400" />
+            </HorizontalStackLayout>
+
+
+            <HorizontalStackLayout Margin="0,0,0,20" HorizontalOptions="Center">
+                <Button
+                    Margin="10,0"
+                    Command="{Binding SaveCommand}"
+                    FontSize="18"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Text="Save changes"
+                    TextColor="White" />
+
+                <Button
+                    Command="{Binding DeleteCommand}"
+                    FontSize="18"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Text="Delete project"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+
+
+        <Grid
+            Grid.Row="1"
+            Margin="0,20,0,0"
+            ColumnDefinitions="*,*">
+
+            <!--  Users  -->
+            <VerticalStackLayout Grid.Column="0">
+                <HorizontalStackLayout HorizontalOptions="Center">
+                    <Label
+                        Margin="0,0,20,10"
+                        FontAttributes="Bold"
+                        FontSize="25"
+                        Text="Users"
+                        TextColor="{StaticResource Powder}"
+                        TextTransform="Uppercase" />
+                    <Label
+                        FontSize="25"
+                        Text="{Binding UsersInProject.Count}"
+                        TextColor="Gray" />
+                </HorizontalStackLayout>
+
+
+
+                <CollectionView ItemsSource="{Binding UsersInProject}">
+
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout
+                            HorizontalItemSpacing="10"
+                            Orientation="Vertical"
+                            VerticalItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="m:UserDetailModel">
+                            <Frame
+                                Padding="15"
+                                BackgroundColor="{StaticResource DarkestBlue}"
+                                CornerRadius="20"
+                                HorizontalOptions="Center"
+                                WidthRequest="400">
+                                <HorizontalStackLayout
+                                    BackgroundColor="{StaticResource DarkestBlue}"
+                                    HorizontalOptions="Center"
+                                    Spacing="10">
+                                    <Frame
+                                        Padding="0"
+                                        CornerRadius="30"
+                                        IsClippedToBounds="True">
+                                        <Image
+                                            Aspect="AspectFill"
+                                            HeightRequest="50"
+                                            HorizontalOptions="Center"
+                                            Source="{Binding ImageUrl, TargetNullValue='user_placeholder.png'}"
+                                            VerticalOptions="Start"
+                                            WidthRequest="50" />
+                                    </Frame>
+
+                                    <Label
+                                        FontSize="20"
+                                        Text="{Binding Name}"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        FontSize="20"
+                                        Text="{Binding Surname}"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+
+            <!--  Activities  -->
+            <VerticalStackLayout Grid.Column="1">
+                <HorizontalStackLayout
+                    Margin="0,0,0,10"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="25"
+                        Text="Activities"
+                        TextColor="{StaticResource ButtonBackground}"
+                        TextTransform="Uppercase" />
+                    <Label
+                        Margin="20,0,0,0"
+                        FontSize="25"
+                        Text="{Binding Project.ProjActivities.Count}"
+                        TextColor="Gray" />
+
+                </HorizontalStackLayout>
+
+
+                <CollectionView HorizontalOptions="Center" ItemsSource="{Binding Project.ProjActivities}">
+
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout
+                            HorizontalItemSpacing="20"
+                            Orientation="Vertical"
+                            VerticalItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="m:ActivityListModel">
+                            <Frame
+                                BackgroundColor="{StaticResource Gray600}"
+                                CornerRadius="20"
+                                HeightRequest="80"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                WidthRequest="400">
+                                <HorizontalStackLayout HorizontalOptions="Center">
+                                    <Label
+                                        FontSize="18"
+                                        Text="{Binding Name}"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</views:ContentPageBase>
